@@ -1,0 +1,8 @@
+.vscode
+test.py
+go.sum
+data
+gammu-web
+web/dist
+src-web/node_modules
+src-web/package-lock.json
