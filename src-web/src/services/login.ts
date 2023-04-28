@@ -18,14 +18,16 @@ export const getLogStatus = (): boolean => {
 }
 
 export const checkLogStatus = () => {
-  if (!getLogStatus() && window.location.pathname !== "/") {
+  let status = getLogStatus();
+  if (!status && window.location.pathname !== "/") {
     window.location.href = "/";
     return
   }
-  if (window.location.pathname === "/" && getLogStatus()) {
+  if (window.location.pathname === "/" && status) {
     if (WS == null) { ws_connect(); }
     window.location.href = "/sms";
   }
+  status && WS == null && ws_connect();
 }
 
 export const verifyToken = () => {

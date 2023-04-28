@@ -1,8 +1,9 @@
 .vscode
 test.py
+build
 go.sum
 data
 gammu-web
-web/dist
+web/dist/*
 src-web/node_modules
 src-web/package-lock.json

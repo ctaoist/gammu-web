@@ -17,15 +17,20 @@ func init() {
 		FullTimestamp:   true,
 		TimestampFormat: "2006-01-02 15:04:05",
 	})
-	log.SetLevel(log.DebugLevel)
+	log.SetLevel(log.InfoLevel)
 }
 
 func main() {
+	debug := flag.Bool("debug", false, "Debug mode")
 	port := flag.String("port", "21234", "Server listen port")
 	flag.BoolVar(&config.TestMode, "test", false, "Test mode, and not start gammu service")
 	flag.StringVar(&config.AccessToken, "token", "", "Api access token")
 	gammurc := flag.String("gammu-conf", "~/.gammurc", "Gammu config file")
 	flag.Parse()
+
+	if *debug {
+		log.SetLevel(log.DebugLevel)
+	}
 
 	log.Info("Init", "Initializing...")
 	db.Init()
