@@ -32,10 +32,16 @@ apt install libgammu-dev
 gammu-web -h
 
 Usage of ./gammu-web:
+  -debug
+        Debug mode
   -gammu-conf string
         Gammu config file (default "~/.gammurc")
+  -log string
+        Log to file, default to stdout
   -port string
         Server listen port (default "21234")
+  -test
+        Test mode, and not start gammu service
   -token string
         Api access token
 ```

@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"os"
 
 	"github.com/ctaoist/gammu-web/config"
 	"github.com/ctaoist/gammu-web/db"
@@ -13,7 +14,7 @@ import (
 func init() {
 	log.SetFormatter(&log.TextFormatter{
 		DisableColors:   false,
-		ForceColors:     true,
+		ForceColors:     false,
 		FullTimestamp:   true,
 		TimestampFormat: "2006-01-02 15:04:05",
 	})
@@ -26,10 +27,19 @@ func main() {
 	flag.BoolVar(&config.TestMode, "test", false, "Test mode, and not start gammu service")
 	flag.StringVar(&config.AccessToken, "token", "", "Api access token")
 	gammurc := flag.String("gammu-conf", "~/.gammurc", "Gammu config file")
+	logf := flag.String("log", "", "Log to file, default to stdout")
 	flag.Parse()
 
 	if *debug {
 		log.SetLevel(log.DebugLevel)
+	}
+
+	if *logf != "" {
+		f, err := os.OpenFile(*logf, os.O_WRONLY | os.O_CREATE | os.O_APPEND, 0644)
+		if err != nil {
+			log.Fatal("LogInit", err)
+		}
+		log.SetOutput(f)
 	}
 
 	log.Info("Init", "Initializing...")
