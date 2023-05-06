@@ -107,7 +107,7 @@ export const SMSChatPage = () => {
       {newFlag &&
         <TextField inputProps={{ pattern: "[+\d]" }} required label={t('Addressee')} sx={{ width: '100%', pt: 12 }} value={number} variant="outlined" onChange={(e) => setNumber(e.target.value)} />}
       {!newFlag && <Divider sx={{ width: '100%', pt: 12 }}><Chip label={t(moreLabel)} /></Divider>}
-      <List sx={{ mb: 5, display: 'flow-root' }}>
+      <List sx={{ mb: 5, display: 'flow-root', minHeight: 10 }}>
         {msgs.map((sms: SMSMessage) => (
           <ChatItem sms={sms} key={sms.id} />
         ))}

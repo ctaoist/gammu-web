@@ -1,6 +1,6 @@
 .vscode
 *.log
-test.py
+test/*
 build
 go.sum
 data

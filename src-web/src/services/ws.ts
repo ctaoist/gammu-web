@@ -4,7 +4,8 @@ import { getToken } from "./login";
 export var WS: WebSocket | null;
 
 export const connect = () => {
-  WS = new WebSocket(`ws://10.10.10.56:21234/ws?token=${getToken()}`);
+  let protocol = window.location.protocol === "https:" ? "wss" : "ws";
+  WS = new WebSocket(`${protocol}://${window.location.hostname}/ws?token=${getToken()}`);
   WS.onopen = () => {
     console.log("websocket connected");
   };
