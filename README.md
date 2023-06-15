@@ -6,8 +6,8 @@ Gammu-Web is a wrapper for [libGammu](https://github.com/gammu/gammu) with WebUI
 
 [![GitHub license](https://img.shields.io/github/license/ctaoist/gammu-web.svg)](https://github.com/ctaoist/gammu-web/blob/master/LICENSE)
 
-![](screenshots/sms.jpg) | ![](screenshots/sms_chat.jpg)
---|--
+| ![](screenshots/sms.jpg) | ![](screenshots/sms_chat.jpg) |
+| ------------------------ | ----------------------------- |
 
 </div>
 
@@ -52,15 +52,18 @@ Usage of ./gammu-web:
 # Firstly, clone the repo from github
 git clone https://github.com/ctaoist/gammu-web.git
 
+# build golang progarm
+go mod tidy
+go build -ldflags "-s -w"
+
 # build react src
 cd gammu-web/src-web
 npm install -g vite
 npm install
 vite build
 
-# build golang progarm
-go mod tidy
-go build -ldflags "-s -w"
+# dev run, need run golang program at first.
+vite
 ```
 
 ## API
@@ -71,18 +74,18 @@ example: `/api/get_phone_info?token=xxxxx`
 
 response:
 
-Filed | Type | Description
- -- | -- | --
-`ownNumber` | string | The number of the SIM card
+| Filed       | Type   | Description                |
+| ----------- | ------ | -------------------------- |
+| `ownNumber` | string | The number of the SIM card |
 
 ### send_sms
 
 request:
 
-Filed | Type | Description
- -- | -- | --
-`number` | string | Send SMS to the phone `number`
-`text` | string | The content to send
+| Filed    | Type   | Description                    |
+| -------- | ------ | ------------------------------ |
+| `number` | string | Send SMS to the phone `number` |
+| `text`   | string | The content to send            |
 
 example: `/api/send_sms?token=xxx&number=xxxxxx&text=1234gammu`
 
@@ -90,8 +93,8 @@ response:
 
 ```json
 {
-    "retCode": 0,
-    "errorMsg": ""
+  "retCode": 0,
+  "errorMsg": ""
 }
 ```
 
@@ -99,10 +102,10 @@ response:
 
 request:
 
-Filed | Type | Description
- -- | -- | --
-`number` | string | The phone `number` to get sms
-`page` | int | The page to request. There is 20 messages per page. Default is `0`.
+| Filed    | Type   | Description                                                         |
+| -------- | ------ | ------------------------------------------------------------------- |
+| `number` | string | The phone `number` to get sms                                       |
+| `page`   | int    | The page to request. There is 20 messages per page. Default is `0`. |
 
 example: `/api/get_messages?token=xxx&number=xxxxxx&page=0`
 
@@ -118,22 +121,22 @@ response:
 
 `Msg{}`:
 
-Filed | Type | Description
- -- | -- | --
-`id` | string | The id of msg
-`self_number` | string | The number of the SIM card
-`number` | string | The phone `number` to get sms
-`text` | string | The content of sms
-`sent` | bool | Send or Receive sms
-`time` | int64 | The time stamp
+| Filed         | Type   | Description                   |
+| ------------- | ------ | ----------------------------- |
+| `id`          | string | The id of msg                 |
+| `self_number` | string | The number of the SIM card    |
+| `number`      | string | The phone `number` to get sms |
+| `text`        | string | The content of sms            |
+| `sent`        | bool   | Send or Receive sms           |
+| `time`        | int64  | The time stamp                |
 
 ### delete_sms
 
 request:
 
-Filed | Type | Description
- -- | -- | --
-`number` | string | The phone `number` to delete
+| Filed    | Type   | Description                  |
+| -------- | ------ | ---------------------------- |
+| `number` | string | The phone `number` to delete |
 
 example: `/api/delete_sms?token=xxx&number=xxxxxx`
 
@@ -141,10 +144,18 @@ response:
 
 ```json
 {
-    "retCode": 0,
-    "errorMsg": ""
+  "retCode": 0,
+  "errorMsg": ""
 }
 ```
+
+### log
+
+e.g.: `/log?token=xxxxxxxxx`
+
+### clear_log
+
+e.g.: '/api/clear_log?token=xxxxxx'
 
 ## License
 
