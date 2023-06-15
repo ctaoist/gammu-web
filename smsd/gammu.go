@@ -39,6 +39,10 @@ import (
 	log "github.com/ctaoist/gutils/log"
 )
 
+var (
+	lastSms C.GSM_SMSMessage
+)
+
 // Error
 type Error = gerror.Error
 
@@ -335,8 +339,8 @@ type SMS struct {
 // Returns io.EOF if there is no more messages to read
 func (sm *StateMachine) GetSMS() (sms SMS, err error) {
 	var msms C.GSM_MultiSMSMessage
-	// if e := C.GSM_GetSMS(sm.g, &msms); e != C.ERR_NONE {
-	if e := C.GSM_GetNextSMS(sm.g, &msms, C.TRUE); e != C.ERR_NONE {
+	if e := C.GSM_GetSMS(sm.g, &msms); e != C.ERR_NONE {
+		// if e := C.GSM_GetNextSMS(sm.g, &msms, C.TRUE); e != C.ERR_NONE {
 		if e == C.ERR_EMPTY {
 			err = io.EOF
 		} else {
@@ -351,6 +355,7 @@ func (sm *StateMachine) GetSMS() (sms SMS, err error) {
 
 	for i := 0; i < int(msms.Number); i++ {
 		s = msms.SMS[i]
+		lastSms = s
 		if s.Coding == C.SMS_Coding_8bit {
 			continue
 		}
@@ -366,4 +371,11 @@ func (sm *StateMachine) GetSMS() (sms SMS, err error) {
 		}
 	}
 	return
+}
+
+func c_gsm_deleteSMS(sm *StateMachine, s C.GSM_SMSMessage) {
+	s.Folder = 0 // Flat
+	if e := C.GSM_DeleteSMS(sm.g, &s); e != C.ERR_NONE {
+		log.Error("c_gsm_DeleteSMS", e)
+	}
 }

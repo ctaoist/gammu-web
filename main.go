@@ -27,18 +27,19 @@ func main() {
 	flag.BoolVar(&config.TestMode, "test", false, "Test mode, and not start gammu service")
 	flag.StringVar(&config.AccessToken, "token", "", "Api access token")
 	gammurc := flag.String("gammu-conf", "~/.gammurc", "Gammu config file")
-	logf := flag.String("log", "", "Log to file, default to stdout")
+	flag.StringVar(&config.LogFile, "log", "", "Log to file, default to stdout")
 	flag.Parse()
 
 	if *debug {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	if *logf != "" {
-		f, err := os.OpenFile(*logf, os.O_WRONLY | os.O_CREATE | os.O_APPEND, 0644)
+	if config.LogFile != "" {
+		f, err := os.OpenFile(config.LogFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 		if err != nil {
 			log.Fatal("LogInit", err)
 		}
+		defer f.Close()
 		log.SetOutput(f)
 	}
 

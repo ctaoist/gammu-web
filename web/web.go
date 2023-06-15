@@ -76,9 +76,11 @@ func RunServer(port string) {
 	r.Use(logging)
 	r.Use(auth)
 	r.HandleFunc("/ws", wsHandler)
+	r.HandleFunc("/log", logHandler)
 
 	api := r.PathPrefix("/api").Subrouter()
 	api.Use(parse_body)
+	api.HandleFunc("/clear_log", clearLog)
 	api.HandleFunc("/verify_token", verifyToken)
 	api.HandleFunc("/get_phone_info", getPhoneInfo)
 	api.HandleFunc("/send_sms", sendSMS)

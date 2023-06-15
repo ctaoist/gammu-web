@@ -16,6 +16,7 @@ import (
 
 type event struct {
 }
+
 type Msg = message.Msg
 
 var (
@@ -26,7 +27,22 @@ var (
 	outBox, inBox, sentBox []Msg
 	inLock, outLock        sync.Mutex
 	ownNumber              = ""
+	errCount               = 0
+	lastErr                error
 )
+
+func errCounter(e error) {
+	if lastErr != e {
+		lastErr = e
+		errCount = 1
+		return
+	}
+	errCount = errCount + 1
+	if errCount >= 3 {
+		log.Warn("GSMReset", "errCount >= 3, GSM hard reset")
+		GSM_StateMachine.HardReset()
+	}
+}
 
 func Init(config string) {
 	var e error
@@ -76,35 +92,35 @@ func SendSMS(phone_number, text string) {
 }
 
 func ReceiveSMS() {
-	for {
-		sms, err := GSM_StateMachine.GetSMS()
-		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			log.Error("GammuGetSMS", err)
+	sms, err := GSM_StateMachine.GetSMS()
+	if err != nil {
+		if err == io.EOF {
 			return
 		}
-		if len(sms.Body) <= 0 {
-			break
+		log.Error("GammuGetSMS", err)
+		errCounter(err)
+		return
+	}
+	if len(sms.Body) <= 0 {
+		c_gsm_deleteSMS(GSM_StateMachine, lastSms)
+		return
+	}
+	log.Debugf("Test", "%+v\n", sms)
+	if sms.Report {
+		m := strings.TrimSpace(sms.Body)
+		if strings.ToLower(m) == "delivered" {
+			log.Debugf("Delivered SMS", "%+v\n", sms)
+			boxEvent <- 2
 		}
-		log.Debugf("Test", "%+v\n", sms)
-		if sms.Report {
-			m := strings.TrimSpace(sms.Body)
-			if strings.ToLower(m) == "delivered" {
-				log.Debugf("Delivered SMS", "%+v\n", sms)
-				boxEvent <- 2
-			}
-		} else {
-			// Save a message in Inbox
-			msg := Msg{"", GSM_StateMachine.GetOwnNumber(), sms.Number, sms.Body, false, sms.Time}
-			msg.GenerateId()
-			log.Infof("ReceivedSMS", "From %s with text: %s\n", msg.Number, msg.Text)
-			inLock.Lock()
-			inBox = append(inBox, msg)
-			inLock.Unlock()
-			boxEvent <- 1
-		}
+	} else {
+		// Save a message in Inbox
+		msg := Msg{"", GSM_StateMachine.GetOwnNumber(), sms.Number, sms.Body, false, sms.Time}
+		msg.GenerateId()
+		log.Infof("ReceivedSMS", "From %s with text: %s\n", msg.Number, msg.Text)
+		inLock.Lock()
+		inBox = append(inBox, msg)
+		inLock.Unlock()
+		boxEvent <- 1
 	}
 }
 
