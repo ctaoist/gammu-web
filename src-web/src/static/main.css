@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.container {
+    max-width: 760px;
+}
+
+.box {
+    min-height: calc(100vh - 52px);
+}
+
+.content-box {
+    min-height: calc(100vh - 52px - 80px);
+}

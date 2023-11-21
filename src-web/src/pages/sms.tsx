@@ -10,16 +10,11 @@ import { Global } from '../services/global';
 import { WS } from '../services/ws';
 import { checkLogStatus } from '../services/login';
 
-import { AppBar, Box, Button, Toolbar, ListItem, Divider, ListItemText, IconButton, Typography, Container, TableContainer, TableCell, TableBody, Table, TableRow, Paper } from '@mui/material';
-import TextsmsIcon from '@mui/icons-material/Textsms';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-
 export const SMSPage = () => {
   checkLogStatus();
 
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [getSmsListFlag, setGetSmsListFlag] = useState(false);
   const location = useLocation();
   const [smsList, setSmsList] = useState<SMSMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -75,29 +70,29 @@ export const SMSPage = () => {
     navigate('/sms_chat', { state: { newSms: true, smsScrollTo: document.documentElement.scrollTop || window.pageYOffset || document.body.scrollTop } })
   };
 
-  return (<Box>
-    <Container maxWidth="sm" sx={{ pb: 7 }}>
-      <AppBar sx={{ position: 'fixed', left: 'auto', right: 'auto', backgroundColor: 'white', width: '100%', maxWidth: "sm" }}>
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: 'black' }}>{t('SMS')}</Typography>
-          <IconButton color="primary" aria-label="back to supper" onClick={newSms}><AddCircleOutlineIcon /></IconButton>
-        </Toolbar>
-      </AppBar>
-      <TableContainer component={Paper} sx={{ pt: 8 }}>
-        <Table aria-label="simple table">
-          <TableBody>
-            {smsList.map((sms: SMSMessage) => (
-              <TableRow key={sms.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                <TableCell><SMSItem sms={sms} /></TableCell>
-                <TableCell><DelSMS number={sms.number} sms={{ smsList: smsList, set: setSmsList }} /></TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <Footer />
-    </Container>
-  </Box >
+  return (<div className='container'>
+    <div className="navbar bg-base-100 sticky top-0 z-30 flex border-2">
+      <nav className='navbar'>
+        <h3 className='text-xl'>{t('SMS')}</h3>
+      </nav>
+      <button className="btn btn-outline flex-1" onClick={newSms}><svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M4 20V4h6.615v1H5v14h14v-5.615h1V20H4Zm12-9V8h-3V7h3V4h1v3h3v1h-3v3h-1Z" /></svg></button>
+    </div>{/* end of navbar */}
+
+    <div className='content-box'>
+      {/* <ul> */}
+      <table className=''><tbody>
+        {smsList.map((sms: SMSMessage) => (
+          <tr key={sms.id}>
+            <td><SMSItem sms={sms} /></td>
+            <td><DelSMS className='flex-1' number={sms.number} sms={{ smsList: smsList, set: setSmsList }} /></td>
+          </tr>
+        ))}
+      </tbody></table>
+      {/* </ul> */}
+    </div>
+
+    <Footer />
+  </div>
   );
 }
 

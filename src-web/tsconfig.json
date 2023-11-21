@@ -19,13 +19,15 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx"
+    // "jsx": "preserve",
+    // "jsxImportSource": "solid-js"
   },
   "include": [
     "./src"
   ],
-  // "references": [
-  //   {
-  //     "path": "./tsconfig.node.json"
-  //   }
-  // ]
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
 }

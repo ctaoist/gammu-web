@@ -1,5 +1,7 @@
-.vscode
+/.vscode
+/.vite
 *.log
+/test.sh
 test/*
 build
 go.sum
@@ -8,3 +10,4 @@ gammu-web
 web/dist/*
 src-web/node_modules
 src-web/package-lock.json
+src-web/src-backup

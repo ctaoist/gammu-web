@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from "react";
-import i18next from "i18next";
 import { useTranslation } from "react-i18next";
-import useSWR, { SWRConfig, useSWRConfig } from "swr";
 import { Route, Routes, useNavigate } from "react-router-dom";
 
 import { routers, getRouterLinkByLabel, getRouterLabelByLink } from "../pages/_routers";
 
-import { AppBar, Toolbar, BottomNavigation, BottomNavigationAction, Paper, List } from "@mui/material";
 
 export const Footer = () => {
   const { t } = useTranslation();
@@ -14,20 +11,15 @@ export const Footer = () => {
   const [tab, setTab] = useState(getRouterLabelByLink(document.location.pathname));
 
   return (
-    <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={3}>
-      <BottomNavigation
-        showLabels
-        value={tab}
-        onChange={(event, newValue) => {
-          setTab(newValue);
-          navigate(getRouterLinkByLabel(newValue));
-        }}
-      >
-        {routers.slice(0,2).map(({ label, link }) => (
-          <BottomNavigationAction key={label} label={t(label)} value={label} />
-        ))}
-      </BottomNavigation>
-    </Paper>)
+    <div role="tablist" className="tabs tabs-bordered tabs-lg sticky z-30 bg-base-100 bottom-0 border-2">
+      {routers.slice(0, 2).map(({ label, link, color }) => (
+        <a key={label} className={`tab${tab === label ? " tab-active" : ""}`} onClick={() => {
+          setTab(label);
+          navigate(link);
+        }}>{t(label)}</a>
+      ))}
+    </div>
+  );
 }
 
 export default Footer

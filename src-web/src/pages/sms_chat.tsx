@@ -1,18 +1,14 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, ChangeEvent } from 'react';
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import { getSMSListByNumber, SMSMessage, sendSMS } from '../services/sms';
-import { ChatItem } from '../components/chat_item';
 import { DelSMS } from '../components/del_sms';
-import { Global } from '../services/global';
+import { parseTime } from '../services/utils';
 import { checkLogStatus } from '../services/login';
 import { WS } from '../services/ws';
 
-import { AppBar, Toolbar, Box, Button, CssBaseline, IconButton, List, ListItem, FormGroup, Stack, Container, TextField, Typography, TableBody, Paper, Chip, Divider } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import SendIcon from '@mui/icons-material/Send';
-import MenuIcon from '@mui/icons-material/Menu';
 
 export const SMSChatPage = () => {
   checkLogStatus();
@@ -22,20 +18,26 @@ export const SMSChatPage = () => {
   const location = useLocation();
   const [msgs, setMsgs] = useState<SMSMessage[]>([]);
   const [text, setText] = useState('');
+  const initTextHeight = 48;
+  const [textHeight, setTextHeight] = useState(initTextHeight + 'px');
   const [page, setPage] = useState(0);
   // const pageRef = useRef<number>(page);
   const [number, setNumber] = useState(location.state?.number || '');
-  const [loadMore, setLoadMore] = useState(false);
   const [moreLabel, setMoreLabel] = useState("Load More");
+  const [noMoreFlag, setNoMoreFlag] = useState(true); // have no more msgs
   const [isLoading, setIsLoading] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const [newFlag, setNewFlag] = useState(location.state?.newSms || false); // New SMS Flag
   const loc = location.state?.smsScrollTo || 0;
 
   const fetchSMSList = async (p: number): Promise<boolean> => {
     let resp = await getSMSListByNumber(p, number);
     if (resp.retCode !== 0) { return false; }
-    if (resp.data.length < 20) { setMoreLabel("No More"); Global.no_more_flag = true; } else { setMoreLabel("Load More"); }
-    if (p == 0) { setMsgs(resp.data) } else { setMsgs(resp.data.concat(msgs)) };
+    if (p == 0) {
+      setMsgs(resp.data);
+      window.scrollTo(0, document.body.scrollHeight); // scroll to bottom
+    } else { setMsgs(resp.data.concat(msgs)) };
+    if (resp.data.length < 20) { setMoreLabel("No More"); setNoMoreFlag(true); } else { setNoMoreFlag(false); setMoreLabel("Load More"); }
     return true;
   }
 
@@ -54,7 +56,7 @@ export const SMSChatPage = () => {
   }
 
   const handleScroll = () => {
-    if (document.documentElement.scrollTop !== 0 || isLoading || Global.no_more_flag) { return; }
+    if (document.documentElement.scrollTop !== 0 || isLoading || noMoreFlag) { return; }
 
     setPage(prePage => { return prePage + 1; });
   };
@@ -71,7 +73,6 @@ export const SMSChatPage = () => {
   }, [page]);
 
   useEffect(() => {
-    Global.no_more_flag = false;
     setMsgs([]);
     fetchSMSList(0).then((success: boolean) => {
       success && window.scrollTo(0, document.body.scrollHeight); // scroll to bottom
@@ -84,44 +85,64 @@ export const SMSChatPage = () => {
     navigate("/sms", { state: { smsScrollTo: loc } });
   };
 
+  const textChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setText(e.target.value);
+    let h = e.target.scrollHeight;
+    if (h < initTextHeight) { setTextHeight(48 + 'px') }
+    if (h > initTextHeight) { setTextHeight(h + 4 + 'px'); }
+  }
+
   const sentSMSClicked = () => {
+    setIsSending(true);
     sendSMS(number, text).then(resp => {
       if (resp.retCode !== 0) {
-        console.log(resp.errorMsg)
+        console.log(resp.errorMsg);
       } else {
-        setText('')
+        setText('');
+        setTextHeight(48 + 'px');
       }
+      setIsSending(false);
     });
   };
 
-  return (<Box>
-    <Container maxWidth="sm">
-      <CssBaseline />
-      <AppBar sx={{ position: 'fixed', left: 'auto', right: 'auto', width: '100%', maxWidth: "sm", backgroundColor: 'white' }}>
-        <Toolbar>
-          <IconButton color="primary" aria-label="back to supper" onClick={backTo}><ArrowBackIcon /></IconButton>
-          <Typography variant='h6' sx={{ display: 'inline', color: 'black', flexGrow: 1 }}>{number}</Typography>
+  return (
+    <div className='container'>
+      <div className="navbar bg-base-100 sticky top-0 z-30 flex">
+        <nav className='navbar border-2'>
+          <div className="flex">
+            <a className="btn btn-ghost text-xl" onClick={backTo}><ArrowBackIcon /></a>
+          </div>
+          <h3 className='text-xl flex-1'>{number}</h3>
           {!newFlag && <DelSMS number={number} loc={loc} />}
-        </Toolbar>
-      </AppBar>
-      {newFlag &&
-        <TextField inputProps={{ pattern: "[+\d]" }} required label={t('Addressee')} sx={{ width: '100%', pt: 12 }} value={number} variant="outlined" onChange={(e) => setNumber(e.target.value)} />}
-      {!newFlag && <Divider sx={{ width: '100%', pt: 12 }}><Chip label={t(moreLabel)} /></Divider>}
-      <List sx={{ mb: 5, display: 'flow-root', minHeight: 10 }}>
+        </nav>
+      </div>{/* end of navbar */}
+
+      {newFlag && <input type="text" placeholder="Phone Number" className="input input-bordered w-full" />}
+
+      {!newFlag && <div className="divider">{t(moreLabel)}</div>}
+      <div className='content-box'>
         {msgs.map((sms: SMSMessage) => (
-          <ChatItem sms={sms} key={sms.id} />
+          // <ChatItem sms={sms} key={sms.id} />
+          <div className={`chat chat-${sms.sent ? "end" : 'start'} mb-2`} key={sms.id}>
+            <div className={`chat-bubble chat-bubble-${sms.sent ? 'primary' : 'info'}`}>{sms.text}</div>
+            <div className="chat-footer opacity-50">{parseTime(sms.time)}</div>
+          </div>
         ))}
-      </List>
-      <Stack direction="row" sx={{ position: 'fixed', bottom: 0, width: '100%', maxWidth: "sm" }} spacing={1}>
-        <TextField hiddenLabel sx={{ width: '100%', backgroundColor: 'white' }} multiline maxRows={4} value={text} onChange={(e) => setText(e.target.value)} />
-        <IconButton color="primary" aria-label="send sms" onClick={sentSMSClicked}><SendIcon /></IconButton>
-      </Stack>
-      {/* <Stack direction="row" sx={{ position: 'fixed', bottom: 0, width: '100%', maxWidth: "sm" }} spacing={1}>
-        <TextField hiddenLabel sx={{ width: '100%' }} multiline maxRows={4} value={text} onChange={(e) => setText(e.target.value)} />
-        <IconButton color="primary" aria-label="send sms" onClick={sentSMSClicked}><SendIcon /></IconButton>
-      </Stack> */}
-    </Container>
-  </Box>)
+        {/* <div className="chat chat-start hidden">
+          <div className="chat-bubble chat-bubble-primary">Hidden</div>
+        </div>
+        <div hidden className="chat chat-end hidden">
+          <div className="chat-bubble chat-bubble-info">Hidden</div>
+        </div> */}
+      </div>
+
+      <div className="join sticky z-30 bg-base-100 bottom-0 w-full">
+        <textarea className='border-2 px-2 rows-1 join-item w-full' style={{ height: textHeight }} value={text} onChange={(e) => { textChange(e) }}></textarea>
+        {!isSending && <button className="btn btn-outline join-item" onClick={sentSMSClicked}><svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 16 16"><path fill="currentColor" d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576L6.636 10.07Zm6.787-8.201L1.591 6.602l4.339 2.76l7.494-7.493Z" /></svg></button>}
+        {isSending && <button className="btn btn-outline join-item disabled">Sending</button>}
+      </div>
+    </div >
+  );
 }
 
 export default SMSChatPage;

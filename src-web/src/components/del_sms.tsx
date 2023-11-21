@@ -1,12 +1,6 @@
-import { useEffect, useState, Fragment } from "react";
 import { useNavigate } from "react-router-dom";
-import i18next from "i18next";
-import { useTranslation } from "react-i18next";
 
 import { SMSMessage, delSMS } from "../services/sms";
-
-import { AppBar, Toolbar, Box, Button, CssBaseline, IconButton, List, ListItem, FormGroup, Stack, Container, TextField, Typography, TableBody, Table, TableRow, Paper } from '@mui/material';
-import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 
 export const DelSMS = (props: any) => {
   const navigate = useNavigate();
@@ -24,7 +18,8 @@ export const DelSMS = (props: any) => {
       }
     });
   }
+
   return (
-    <Button onClick={delSms}><DeleteTwoToneIcon /></Button>
-  )
+    <button className="btn btn-outline m-0 p-2" onClick={delSms}><svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M7 21q-.825 0-1.413-.588T5 19V6H4V4h5V3h6v1h5v2h-1v13q0 .825-.588 1.413T17 21H7ZM17 6H7v13h10V6ZM9 17h2V8H9v9Zm4 0h2V8h-2v9ZM7 6v13V6Z" /></svg></button>
+  );
 }

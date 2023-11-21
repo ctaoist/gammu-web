@@ -9,8 +9,6 @@ import { connect as ws_connect } from '../services/ws';
 import { getPhoneInfo } from '../services/sms'
 import { verifyToken, setLogStatus, checkLogStatus } from '../services/login'
 
-import { Box, Button, Container, Checkbox, TextField, FormGroup, FormControlLabel } from "@mui/material";
-
 export const LoginPage = () => {
   checkLogStatus();
 
@@ -18,7 +16,7 @@ export const LoginPage = () => {
   const navigate = useNavigate();
   const [token, setToken] = useState(getToken());
   const [connStatus, setConnStatus] = useState(false);
-  const [remember, setRemember] = useState(false);
+  const [remember, setRemember] = useState(getToken().length > 0);
 
   useEffect(() => {
     // console.log(token === '');
@@ -51,16 +49,22 @@ export const LoginPage = () => {
     });
   };
 
-  return (<Container maxWidth="sm">
-    <Box sx={{ maxWidth: '100%' }}>
-      <FormGroup>
-        <TextField fullWidth label="Token" variant="standard" value={token} onChange={(e) => setToken(e.target.value)} />
-        <FormControlLabel control={<Checkbox defaultChecked={getToken().length > 0} onChange={(e) => checkRemember(e)} />} label={t("Remember it")} />
-      </FormGroup>
-      <Button sx={{ mt: 2 }} variant="contained" disabled={connStatus} onClick={connect}>{t("Connect")}</Button>
-    </Box>
-  </Container>
-  )
+  return (<div className='container'>
+    <div className="form-control w-full">
+      <label className="label">
+        <span className="label-text">Token</span>
+      </label>
+      <input type="text" value={token} className="input w-full input-bordered" onChange={(e) => setToken(e.target.value)} />
+      <label className="label cursor-pointer">
+        <span className="label-text">{t("Remember it")}</span>
+        <input type="checkbox" defaultChecked={getToken().length > 0} className="checkbox" onChange={(e) => setRemember(e.target.checked)} />
+      </label>
+    </div>
+    <div className="flex justify-end">
+      <button className='btn' onClick={connect}>{t("Connect")}</button>
+    </div>
+  </div>
+  );
 }
 
 export default LoginPage;

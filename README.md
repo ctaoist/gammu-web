@@ -6,14 +6,14 @@ Gammu-Web is a wrapper for [libGammu](https://github.com/gammu/gammu) with WebUI
 
 [![GitHub license](https://img.shields.io/github/license/ctaoist/gammu-web.svg)](https://github.com/ctaoist/gammu-web/blob/master/LICENSE)
 
-| ![](screenshots/sms.jpg) | ![](screenshots/sms_chat.jpg) |
+| ![](screenshots/sms.png) | ![](screenshots/sms_chat.png) |
 | ------------------------ | ----------------------------- |
 
 </div>
 
 ## Features
 
-- WebUI by [React](https://react.dev/)
+- WebUI by [React](https://react.dev/), [Daisyui](https://daisyui.com/) and [Tailwind CSS](https://www.tailwindcss.cn/)
 - Http api
 - Websocket server
 - A single binary with embed static files

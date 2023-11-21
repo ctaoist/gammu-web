@@ -5,7 +5,7 @@ export var WS: WebSocket | null;
 
 export const connect = () => {
   let protocol = window.location.protocol === "https:" ? "wss" : "ws";
-  WS = new WebSocket(`${protocol}://${window.location.hostname}/ws?token=${getToken()}`);
+  WS = new WebSocket(`${protocol}://${window.location.host}/ws?token=${getToken()}`);
   WS.onopen = () => {
     console.log("websocket connected");
   };
